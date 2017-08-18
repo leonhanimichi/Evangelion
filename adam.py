@@ -19,10 +19,7 @@ stocks = "TSLA"
 
 testdata = dreader.DataReader(stocks,'google','2008-01-01','2017-01-01')
 testdata.to_csv('data/TSLA.csv')
-#Use this to print general structure of the data
-#print "DATA: ", testdata
 
 exit()
-#Have to swapaxes because my Trader class uses it like data[stockname]['Close']
 testdata = testdata.swapaxes(0,2)
 
