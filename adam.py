@@ -45,10 +45,10 @@ allData_reformat = pd.DataFrame(
 	{'col1_Year': allYear,
 	'col2_Month': allMonth,
 	'col3_Day': allDay,
-	'col4_Volume': allVolume,
+	#'col4_Volume': allVolume,
 	'col5_avgPrice': allPrice_avg
 	})
-allData_reformat.to_csv('data/'+str(stocks)+'_re.csv')
+allData_reformat.to_csv('data/'+str(stocks)+'_re.csv', index=False)
 
 exit()
 allData = allData.swapaxes(0,2)
