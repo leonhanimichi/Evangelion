@@ -24,7 +24,7 @@ plt.plot(x, y, 'ok', ms=10);
 lr = lm.LinearRegression()
 
 # We train the model on our training dataset.
-# np.newaxis is just to transpose x[] row array, into column array
+# np.newaxis is just to transpose x[] row array into column array
 lr.fit(x[:, np.newaxis], y)
 
 # Now, we predict points with our trained model.
