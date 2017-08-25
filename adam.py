@@ -18,7 +18,7 @@ import sklearn.linear_model as lm
 
 from pylab import * #Used to calculate Mean and maybe more stuff didn't check, can probably replace/get rid of it
 
-stocks = "NVDA"
+stocks = "AAPL"
 
 #getting the stock info [Date, Open, High, Low, Close, Volume]
 allData_temp = dreader.DataReader(stocks,'google','1970-01-01','2017-08-01')
@@ -80,11 +80,12 @@ lrp = lm.RidgeCV()
 
 for deg, s in zip([3], ['-']):
 	lrp.fit(date_train, price_train)  #ALERT! FITTING HERE
+	print lrp.coef_.tolist()
 	y_lrp = lrp.predict(date_test) #ALERT! TESTING HERE
-	plt.plot(x_axis[3500:4000], y_lrp[:500], s, label='degree ' + str(deg))
+	plt.plot(x_axis[3500:4000], y_lrp[0:500], s, label='degree ' + str(deg))
 	plt.legend(loc=2)
-	#plt.xlim(0, 1.4)
-	#plt.ylim(-10, 40)
+	plt.xlim(3500, 4000)
+	#plt.ylim(np.amin(y_lrp), np.amax(y_lrp))
 
 plt.show()
 
