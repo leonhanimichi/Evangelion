@@ -19,7 +19,7 @@ from sklearn.linear_model import Ridge
 
 from pylab import * #Used to calculate Mean and maybe more stuff didn't check, can probably replace/get rid of it
 
-stocks = "NVDA"
+stocks = "AAPL"
 testNum = 120
 
 def normalize(lst):
@@ -54,7 +54,7 @@ allData_reformat = pd.DataFrame(
 	'col2_Month': allMonth,
 	'col3_Day': allDay,
 	#'col4_Volume': allVolume,
-	'col5_avgPrice': allPrice_avg
+	'col5_avgPrice': allData.High
 	})
 allData_reformat.to_csv('data/'+str(stocks)+'_re.csv', index=False)
 
@@ -73,13 +73,8 @@ tradingPrice = stockData[:,3]
 #tradingDate_rescale = scaler2.fit_transform(tradingDate)
 #print tradingDate_rescale[0:testDate,:]
 
-#days_train = tradingDate_rescale[0:testDate,:]
-days_train = np.linspace(1, testDate, testDate,dtype=int64)
 price_train = tradingPrice[:testDate]
-
-days_test = np.linspace(testDate, sampleNum, sampleNum-testDate,dtype=int64)
 price_test = tradingPrice[testDate:sampleNum]
-print days_test
 
 x_axis = np.linspace(1, sampleNum, sampleNum,dtype=float32)
 print x_axis
@@ -96,15 +91,16 @@ print days_test
 plt.figure(figsize=(15,6))
 plt.plot(x_axis[:sampleNum], tradingPrice[:sampleNum], '.')
 #exit()
-lrp = lm.RidgeCV()
+lrp = lm.RidgeCV(alphas=(1,0.01))
 
 #we are iterating through 2 numbers of degrees (2 and 5), s is just a symbol for plotting
-for deg, s in zip([5,10,15,40,50,60], ['-','-','-','-','-','-']):
+for deg, s in zip([15], ['-']):
 	lrp.fit(np.vander(days_train, deg + 1), price_train)  #ALERT! FITTING HERE
+	print lrp.alpha_
 	print lrp.coef_.tolist()
 	#y_lrp = lrp.predict(np.vander(days_test, deg+1)) #ALERT! TESTING HERE
 	y_lrp = lrp.predict(np.vander(x_axis_rescale, deg+1)) #ALERT! TESTING HERE
-	#plt.plot(x_axis[testDate:sampleNum], y_lrp[0:testNum], s, label='deg ' + str(deg))
+	#plt.plot(x_axis[testDate:sampleNum], y_lrp[testDate:sampleNum], s, label='deg ' + str(deg))
 	plt.plot(x_axis[:sampleNum], y_lrp[:sampleNum], s, label='deg ' + str(deg))
 	plt.legend(loc=2)
 	#plt.xlim(testDate, sampleNum)

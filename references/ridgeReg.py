@@ -6,10 +6,10 @@ import sklearn.linear_model as lm
 import matplotlib.pyplot as plt
 #%matplotlib inline
 
-f = lambda x: np.exp(3 * x)
+f = lambda x: np.sin(20 * x)
 
 x_fake = np.linspace(0., 2, 200)
-
+print x_fake
 y_fake = f(x_fake)
 
 
