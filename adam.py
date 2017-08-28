@@ -15,13 +15,19 @@ from sklearn.preprocessing import Normalizer
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import sklearn.linear_model as lm
+from sklearn.linear_model import Ridge
 
 from pylab import * #Used to calculate Mean and maybe more stuff didn't check, can probably replace/get rid of it
 
-stocks = "AAPL"
+stocks = "NVDA"
+testNum = 120
+
+def normalize(lst):
+    s = (np.array(lst) - np.amin(lst))/(np.amax(lst) - np.amin(lst))
+    return s
 
 #getting the stock info [Date, Open, High, Low, Close, Volume]
-allData_temp = dreader.DataReader(stocks,'google','1970-01-01','2017-08-01')
+allData_temp = dreader.DataReader(stocks,'google','2008-01-01','2017-08-27')
 allData_temp.to_csv('data/'+str(stocks)+'.csv')
 
 allData = pd.read_csv('data/'+str(stocks)+'.csv')
@@ -54,42 +60,54 @@ allData_reformat.to_csv('data/'+str(stocks)+'_re.csv', index=False)
 
 dataFrame = pd.read_csv('data/'+str(stocks)+'_re.csv')
 
+#getting total number of samples
+sampleNum = dataFrame.shape[0]
+
+#split samples into 
+testDate = sampleNum - testNum
+
 stockData = dataFrame.values
 tradingDate = stockData[:,0:3]
 tradingPrice = stockData[:,3] 
+#scaler2 = MinMaxScaler(feature_range=(0, 1))
+#tradingDate_rescale = scaler2.fit_transform(tradingDate)
+#print tradingDate_rescale[0:testDate,:]
 
+#days_train = tradingDate_rescale[0:testDate,:]
+days_train = np.linspace(1, testDate, testDate,dtype=int64)
+price_train = tradingPrice[:testDate]
 
-scaler2 = MinMaxScaler(feature_range=(0, 1))
-tradingDate_rescale = scaler2.fit_transform(tradingDate)
-#print tradingDate_rescale[0:3500,:]
+days_test = np.linspace(testDate, sampleNum, sampleNum-testDate,dtype=int64)
+price_test = tradingPrice[testDate:sampleNum]
+print days_test
 
-date_train = tradingDate_rescale[0:3500,:]
-price_train = tradingPrice[:3500]
+x_axis = np.linspace(1, sampleNum, sampleNum,dtype=float32)
+print x_axis
 
-date_test = tradingDate_rescale[3500:4000,:]
-price_test = tradingPrice[3500:4000]
+#scaler2 = MinMaxScaler(feature_range=(0, 1))
+x_axis_rescale = normalize(x_axis)
+days_train = x_axis_rescale [:testDate]
+days_test = x_axis_rescale [testDate:sampleNum]
 
-print date_train
-print date_test
+print x_axis_rescale
+print days_train
+print days_test
 
-x_axis = np.linspace(0., 4000, 4000)
 plt.figure(figsize=(15,6))
-plt.plot(x_axis[:4000], tradingPrice[:4000], '.')
-
+plt.plot(x_axis[:sampleNum], tradingPrice[:sampleNum], '.')
+#exit()
 lrp = lm.RidgeCV()
 
-for deg, s in zip([3], ['-']):
-	lrp.fit(date_train, price_train)  #ALERT! FITTING HERE
+#we are iterating through 2 numbers of degrees (2 and 5), s is just a symbol for plotting
+for deg, s in zip([5,10,15,40,50,60], ['-','-','-','-','-','-']):
+	lrp.fit(np.vander(days_train, deg + 1), price_train)  #ALERT! FITTING HERE
 	print lrp.coef_.tolist()
-	y_lrp = lrp.predict(date_test) #ALERT! TESTING HERE
-	plt.plot(x_axis[3500:4000], y_lrp[0:500], s, label='degree ' + str(deg))
+	#y_lrp = lrp.predict(np.vander(days_test, deg+1)) #ALERT! TESTING HERE
+	y_lrp = lrp.predict(np.vander(x_axis_rescale, deg+1)) #ALERT! TESTING HERE
+	#plt.plot(x_axis[testDate:sampleNum], y_lrp[0:testNum], s, label='deg ' + str(deg))
+	plt.plot(x_axis[:sampleNum], y_lrp[:sampleNum], s, label='deg ' + str(deg))
 	plt.legend(loc=2)
-	plt.xlim(3500, 4000)
+	#plt.xlim(testDate, sampleNum)
 	#plt.ylim(np.amin(y_lrp), np.amax(y_lrp))
 
 plt.show()
-
-
-exit()
-allData = allData.swapaxes(0,2)
-
